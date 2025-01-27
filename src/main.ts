@@ -1,4 +1,6 @@
+import { makePlayer, setControls } from "./entities";
 import { k } from "./kaboomCtx";
+import { makeMap } from "./utils";
 
 async function gameSetup() {
     k.loadSprite("assets","./kirby-like.png",{
@@ -18,6 +20,10 @@ async function gameSetup() {
     });
 
     k.loadSprite("level-1","./level-1.png");
+
+const {map: levelMap , spawnPoints: levelSpawnPoints} = await makeMap(k,"level-1");
+const player = makePlayer(k, levelSpawnPoints.player[0].x, levelSpawnPoints.player[0].y);
+
     k.scene("level-1",()=>{
         k.setGravity(2100);
         k.add([
@@ -25,6 +31,16 @@ async function gameSetup() {
             k.color(k.Color.fromHex("#f7d7db")),
             k.fixed(),
         ]);
+
+        k.add(levelMap);
+       setControls(k, player);
+        k.add(player);
+        k.camScale(0.7,0.7);
+        k.onUpdate(()=>{
+            if(player.pos.x < levelMap.pos.x + 432){
+                k.camPos(player.pos.x + 500, 800);
+            }
+        });
     });
 
     k.go("level-1");
